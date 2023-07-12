@@ -5,7 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
@@ -20,7 +20,7 @@ class FormulariosController extends AbstractController
     }
 
     #[Route('/formularios/simple', name: 'form_simple')]
-    public function simple(): Response
+    public function simple(Request $request): Response
     {
         $formulario = $this->createFormBuilder(null)
             ->add('nombre', TextType::class, ['label' => 'Nombre'])
@@ -28,6 +28,19 @@ class FormulariosController extends AbstractController
             ->add('telefono', TextType::class, ['label' => 'Telefono'])
             ->add('save', SubmitType::class,)
             ->getForm();
+
+        
+        $formulario->handleRequest($request);
+        if($formulario->isSubmitted())
+        {
+            $campos = $formulario->getData();
+            echo 'Nombre: '. $campos["nombre"];
+            echo '<br>Correo: '. $campos["correo"];
+            echo '<br>Teléfono: '. $campos["telefono"];
+            die();
+        }
+
+
         return $this->render('formularios/simple.html.twig',compact('formulario'));
     }
 }
