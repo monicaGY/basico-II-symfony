@@ -30,8 +30,10 @@ class FormulariosController extends AbstractController
             ->getForm();
 
         
+
+        $submiteddToken= $request->request->get('token');
         $formulario->handleRequest($request);
-        if($formulario->isSubmitted())
+        if($formulario->isSubmitted() && $this->isCsrfTokenValid('generico',$submiteddToken))
         {
             $campos = $formulario->getData();
             echo 'Nombre: '. $campos["nombre"];

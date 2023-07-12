@@ -26,6 +26,8 @@
         <label for="form_telefono">Teléfono:</label>
         {{form_widget(formulario.telefono)}}
     </div>
+
+    <input type="hidden" name="token" value="{{csrf_token('generico')}}"/>
     <hr/>
     {{form_widget(formulario.save)}}
 
