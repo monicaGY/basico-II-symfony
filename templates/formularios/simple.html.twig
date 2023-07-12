@@ -1,0 +1,13 @@
+{% extends 'frontend.html.twig' %}
+{% block body %}
+
+<nav class="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a class="p-2 link-secondary" href="{{path('post', {id:12})}}">Home</a></li>
+<li class="breadcrumb-item"><a class="p-2 link-secondary" href="{{path('form_inicio')}}">Formulario</a></li>
+<li class="breadcrumb-item"><a href="{{path('form_simple')}}">Formulario simple</a></li>
+</ol>
+</nav>
+<h1>Formulario simple</h1>
+{{form(formulario)}}
+{% endblock %}
