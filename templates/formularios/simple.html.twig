@@ -11,6 +11,13 @@
 <h1>Formulario simple</h1>
 {# {{form(formulario)}} #}
 
+{% for menssage in app.flashes('mensaje')%}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{menssage}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+</div>
+{% endfor %}
 <form method="POST" action="{{url('form_simple')}}">
     <div class="form-group">
         <label for="form_nombre">Nombre:</label>

@@ -33,13 +33,25 @@ class FormulariosController extends AbstractController
 
         $submiteddToken= $request->request->get('token');
         $formulario->handleRequest($request);
-        if($formulario->isSubmitted() && $this->isCsrfTokenValid('generico',$submiteddToken))
+        if($formulario->isSubmitted())
         {
-            $campos = $formulario->getData();
-            echo 'Nombre: '. $campos["nombre"];
-            echo '<br>Correo: '. $campos["correo"];
-            echo '<br>Teléfono: '. $campos["telefono"];
-            die();
+            if($this->isCsrfTokenValid('generico',$submiteddToken))
+            {
+                $campos = $formulario->getData();
+                echo 'Nombre: '. $campos["nombre"];
+                echo '<br>Correo: '. $campos["correo"];
+                echo '<br>Teléfono: '. $campos["telefono"];
+                die();
+            }
+            else
+            {
+
+                $this->addFlash('css','warning');
+                $this->addFlash('mensaje','Ocurrió un error inesperado');
+                return $this->redirectToRoute('form_simple');
+
+            }
+            
         }
 
 
