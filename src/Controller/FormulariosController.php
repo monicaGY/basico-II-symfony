@@ -10,6 +10,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 use App\Entity\Persona;
+use App\Entity\PersonaEntity;
+use App\Form\PersonEntityFormType;
 
 class FormulariosController extends AbstractController
 {
@@ -98,5 +100,40 @@ class FormulariosController extends AbstractController
             
         }
         return $this->render('formularios/entity.html.twig',compact('formulario'));
+    }
+
+
+    #[Route('/formularios/typeForm', name: 'form_typeForm')]
+    public function typeForm(Request $request): Response
+    {
+        
+        $persona = new PersonaEntity();
+        $formulario = $this->createForm(PersonEntityFormType::class, $persona);
+
+        
+
+        $submiteddToken= $request->request->get('token');
+        $formulario->handleRequest($request);
+        if($formulario->isSubmitted())
+        {
+            if($this->isCsrfTokenValid('generico',$submiteddToken))
+            {
+                $campos = $formulario->getData();
+                echo 'Nombre: '. $campos["nombre"];
+                echo '<br>Correo: '. $campos["correo"];
+                echo '<br>Teléfono: '. $campos["telefono"];
+                die();
+            }
+            else
+            {
+
+                $this->addFlash('css','warning');
+                $this->addFlash('mensaje','Ocurrió un error inesperado');
+                return $this->redirectToRoute('form_simple');
+
+            }
+            
+        }
+        return $this->render('formularios/typeForm.html.twig', compact('formulario'));
     }
 }
