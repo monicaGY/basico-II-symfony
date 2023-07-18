@@ -6,6 +6,7 @@ class PersonaEntity
     protected $nombre;
     protected $correo;
     protected $telefono;
+    protected $pais;
 
     public function getNombre(){
         return $this->nombre;
@@ -29,6 +30,14 @@ class PersonaEntity
 
     public function setTelefono($telefono){
         $this->telefono = $telefono;
+    }
+
+    public function getPais(){
+        return $this->pais;
+    }
+
+    public function setPais($pais){
+        $this->pais = $pais;
     }
     
 }

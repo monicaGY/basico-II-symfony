@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use App\Entity\PersonaEntity;
 //boton
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 
 class PersonEntityFormType extends AbstractType
@@ -21,6 +22,24 @@ class PersonEntityFormType extends AbstractType
             ->add('nombre', TextType::class, ['label' => 'Nombre'])
             ->add('correo', TextType::class, ['label' => 'Email'])
             ->add('telefono', TextType::class, ['label' => 'Telefono'])
+            ->add('pais', ChoiceType::class,[
+                'choices'=>[
+                    'Seleccione una opción' => false,
+                    'España' => 1,
+                    'Alemania' => 2,
+                    'Francia' => 3,
+                    'Australia' => 4,
+                    'Austria' => 5
+                    
+                ],
+                'choice_attr' => [
+                    'Seleccione una opción' => [
+                        'disabled'=> true, 
+                        'selected'=> true
+                    ]
+                ],
+                
+            ])
             ->add('save', SubmitType::class)
         ;
     }
