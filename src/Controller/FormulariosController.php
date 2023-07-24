@@ -16,6 +16,8 @@ use App\Entity\PersonaEntityValidation;
 use App\Form\PersonaValidationType;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+use App\Entity\PersonaEntityUpload;
+use App\Form\PersonaUploadType;
 class FormulariosController extends AbstractController
 {
     #[Route('/formularios', name: 'form_inicio')]
@@ -176,5 +178,67 @@ class FormulariosController extends AbstractController
             }
         }
         return $this->render('formularios/validacion.html.twig', ['formulario' => $form, 'errors' => []]);
+    }
+
+
+    #[Route('/formularios/upload', name: 'form_upload')]
+    public function upload(Request $request, ValidatorInterface $validator): Response
+    {
+        $persona = new PersonaEntityUpload();
+        $form = $this -> createForm(PersonaUploadType::class, $persona);
+        
+        $form->handleRequest($request);
+        $submiteddToken = $request->request->get('token');
+
+        if($form->isSubmitted())
+        {
+
+            if($this->isCsrfTokenValid('generico',$submiteddToken))
+            {
+                $errors = $validator->validate($persona);
+                if(count($errors) > 0)
+                {
+                    // echo 'alert('.count($errors).')';
+                    return $this->render('formularios/upload.html.twig', ['formulario' => $form, 'errors' => $errors]);
+
+                }else
+                {
+                    $foto = $form -> get('foto')->getData();
+                    if($foto)
+                    {
+                        $originalName = pathinfo($foto->getClientOriginalName(), PATHINFO_FILENAME);
+
+                        $newfilename = time().'.'.$foto->guessExtension();
+                        try{
+                            $foto->move(
+                                $this->getParameter('fotos_directory'),
+                                $newfilename
+                            );
+
+                        }catch(FileException $th){
+                            throw new Exception("mensaje", "Ocurrió un error intentalo más tarde");
+                            
+                        }
+
+                        $persona->setFoto($newfilename);
+                    }
+
+                    $campos = $form->getData();
+                    echo 'Nombre: '. $campos->getNombre();
+                    echo '<br>Correo: '. $campos->getCorreo();
+                    echo '<br>Teléfono: '. $campos->getTelefono();
+
+                    echo '<br>Foto: '. $campos->getFoto();
+                    die();
+                }
+            }else
+            {
+                $this->addFlash('css','warning');
+                $this->addFlash('mensaje','Ocurrió un error inesperado');
+                return $this->redirectToRoute('form_upload');
+            }
+        }
+        return $this->render('formularios/upload.html.twig', ['formulario' => $form, 'errors' => []]);
+        
     }
 }
