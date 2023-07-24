@@ -12,6 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Entity\Persona;
 use App\Entity\PersonaEntity;
 use App\Form\PersonEntityFormType;
+use App\Entity\PersonaEntityValidation;
+use App\Form\PersonaValidationType;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FormulariosController extends AbstractController
 {
@@ -85,8 +88,8 @@ class FormulariosController extends AbstractController
             {
                 $campos = $formulario->getData();
                 echo 'Nombre: '. $campos->getNombre();
-                echo '<br>Correo: '. $campos->getCorreo;
-                echo '<br>Teléfono: '. $campos->getTelefono;
+                echo '<br>Correo: '. $campos->getCorreo();
+                echo '<br>Teléfono: '. $campos->getTelefono();
                 die();
             }
             else
@@ -135,5 +138,43 @@ class FormulariosController extends AbstractController
             
         }
         return $this->render('formularios/typeForm.html.twig', compact('formulario'));
+    }
+    
+    #[Route('/formularios/validacion', name: 'form_validacion')]
+    public function validacion(Request $request, ValidatorInterface $validator): Response
+    {
+        $persona = new PersonaEntityValidation();
+        $form = $this -> createForm(PersonaValidationType::class, $persona);
+        
+        $form->handleRequest($request);
+        $submiteddToken = $request->request->get('token');
+
+        if($form->isSubmitted())
+        {
+
+            if($this->isCsrfTokenValid('generico',$submiteddToken))
+            {
+                $errors = $validator->validate($persona);
+                if(count($errors) > 0)
+                {
+                    // echo 'alert('.count($errors).')';
+                    return $this->render('formularios/validacion.html.twig', ['formulario' => $form, 'errors' => $errors]);
+
+                }else
+                {
+                    $campos = $form->getData();
+                    echo 'Nombre: '. $campos->getNombre();
+                    echo '<br>Correo: '. $campos->getCorreo();
+                    echo '<br>Teléfono: '. $campos->getTelefono();
+                    die();
+                }
+            }else
+            {
+                $this->addFlash('css','warning');
+                $this->addFlash('mensaje','Ocurrió un error inesperado');
+                return $this->redirectToRoute('form_validacion');
+            }
+        }
+        return $this->render('formularios/validacion.html.twig', ['formulario' => $form, 'errors' => []]);
     }
 }
