@@ -13,14 +13,22 @@ use Symfony\Component\Mime\Email;
 //fallo en el envío de emails
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
+
+//http client
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 class UtilidadesController extends AbstractController
 {
+    public function __construct(private HttpClientInterface $client,)
+    {
+    }
+
     #[Route('/utilidades', name: 'utilidades_inicio')]
     public function index(): Response
     {
         return $this->render('utilidades/index.html.twig');
     }
-    
+
     #[Route('/utilidades/mail', name: 'utilidades_mail')]
     public function enviar_mail(MailerInterface $mailer): Response
     {
@@ -38,5 +46,16 @@ class UtilidadesController extends AbstractController
             die($e);
         }
         return $this->render('utilidades/mail.html.twig');
+    }
+
+    #[Route('/utilidades/api_rest', name: 'utilidades_api_rest')]
+    public function api_rest(): Response
+    {
+        $response = $this->client->request(
+            'GET',
+            'https://api.escuelajs.co/api/v1/categories'
+        );
+        
+        return $this->render('utilidades/api_rest.html.twig', compact('response'));
     }
 }
