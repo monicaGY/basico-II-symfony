@@ -53,7 +53,9 @@ class UtilidadesController extends AbstractController
     {
         $response = $this->client->request(
             'GET',
-            'https://api.escuelajs.co/api/v1/categories'
+            // 'https://api.escuelajs.co/api/v1/categories'
+            'https://jsonplaceholder.typicode.com/posts'
+
         );
         
         return $this->render('utilidades/api_rest.html.twig', compact('response'));

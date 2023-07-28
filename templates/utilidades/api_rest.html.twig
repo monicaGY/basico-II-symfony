@@ -20,7 +20,7 @@
             <tr>
                 <th>ID</th>
 
-                <th>ROPA</th>
+                <th>Descripción</th>
             </tr>
         </thead>
 
@@ -28,7 +28,7 @@
         {% for dato in response.toArray() %}
         <tr>
             <td>{{ dato.id }}</td>
-            <td>{{ dato.name}}</td>
+            <td>{{ dato.body}}</td>
         </tr>
         {% endfor %}
         </tbody>
