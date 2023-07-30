@@ -78,6 +78,14 @@ class UtilidadesController extends AbstractController
                     'body' => $campos['body'],
                     'userId' => $campos['userId']
                 ];
+
+                if(empty($campos['title']) or empty($campos['body'])or empty($campos['userId'])){
+                    $this->addFlash('css','danger');
+                    $this->addFlash('respuesta', 'campos vacíos');
+                    $this->addFlash('mensaje','rellena todos los campos');
+                    return $this->redirectToRoute('utilidades_api_rest_post');
+
+                }
                 $response = $this->client->request(
                     'POST',
                     'https://jsonplaceholder.typicode.com/posts',
@@ -96,7 +104,10 @@ class UtilidadesController extends AbstractController
                     $this->addFlash('css','danger');
                     $this->addFlash('respuesta',$response);
                     $this->addFlash('mensaje','vuelve a intentarlo más tarde');
+                    return $this->redirectToRoute('utilidades_api_rest_post');
                 }
+                return $this->redirectToRoute('utilidades_api_rest_post');
+
             }
         }
 
