@@ -19,6 +19,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\PublicacionType;
+
+use App\Form\AccionType;
+
 class UtilidadesController extends AbstractController
 {
     public function __construct(private HttpClientInterface $client,)
@@ -118,20 +121,105 @@ class UtilidadesController extends AbstractController
     #[Route('/utilidades/api_rest_acciones', name: 'utilidades_api_rest_acciones')]
     public function api_rest_acciones(Request $request): Response
     {
-        // https://www.api.tamila.cl/api/login
-        // correo: info@tamila.cl
-        // password: p2gHNiENUw
+
+        //1 - OBTENIENDO EL TOKEN
+        $response = $this->client->request(
+            'POST',
+            'https://www.api.tamila.cl/api/login',
+            [
+                'json' => [
+                    'correo' => 'info@tamila.cl',
+                    'password' => 'p2gHNiENUw'
+                ]
+            ]
+
+        );
+
+        $responseJson = $response->getContent();
+        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+
+        $token = $responseData['token'];
+
+
         $response = $this->client->request(
             'GET',
             'https://www.api.tamila.cl/api/categorias',
             [
                 'headers' => [
-                    'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzYsImlhdCI6MTY5MDg4MDczNSwiZXhwIjoxNjkzNDcyNzM1fQ.4L57oAbLtgGTnPHZcrDDXbV5DXARTKOBc4LadcEaPzk'
+                    'Authorization' => 'Bearer '. $token
                 ]
             ]
 
         );
         
         return $this->render('utilidades/api_rest_acciones.html.twig', compact('response'));
+    }
+
+    #[Route('/utilidades/api_rest_añadir', name: 'utilidades_api_rest_añadir')]
+    public function añadir(Request $request): Response
+    {
+        $form = $this->createForm(AccionType::class, null);
+        $form -> handleRequest($request);
+        $submitedToken = $request->request->get('token');
+
+
+        if($form->isSubmitted()){
+
+
+            if($this->isCsrfTokenValid('generico',$submitedToken)){
+
+                //1 - OBTENIENDO EL TOKEN
+                $response = $this->client->request(
+                    'POST',
+                    'https://www.api.tamila.cl/api/login',
+                    [
+                        'json' => [
+                            'correo' => 'info@tamila.cl',
+                            'password' => 'p2gHNiENUw'
+                        ]
+                    ]
+        
+                );
+
+                $responseJson = $response->getContent();
+                $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+                $token = $responseData['token'];
+
+
+                //2 - AÑADIR ELEMENTO
+                $campos= $form->getData();
+                $datos = [
+                    'nombre' => $campos['nombre']
+                ];
+
+                $response = $this->client->request(
+                    'POST',
+                    'https://www.api.tamila.cl/api/categorias',
+                    [
+                        'headers' => [
+                            'Authorization' => 'Bearer '.$token
+                        ],
+                        'json' => $datos
+                    ]
+
+                );
+
+                $response = $response->getStatusCode();
+
+                if($response === 201){
+                    $this->addFlash('css','success');
+                    $this->addFlash('respuesta',$response);
+                    $this->addFlash('mensaje','proceso completado con éxito');
+                }else{
+                    $this->addFlash('css','danger');
+                    $this->addFlash('respuesta',$response);
+                    $this->addFlash('mensaje','vuelve a intentarlo más tarde');
+                }
+                return $this->redirectToRoute('utilidades_api_rest_añadir');
+
+            }
+        }
+
+        return $this->render('utilidades/api_rest_añadir.html.twig', compact('form'));
     }
 }
