@@ -62,7 +62,7 @@ class UtilidadesController extends AbstractController
         return $this->render('utilidades/api_rest.html.twig', compact('response'));
     }
     #[Route('/utilidades/api_rest/post', name: 'utilidades_api_rest_post')]
-    public function api_rest_post(Request $request,): Response
+    public function api_rest_post(Request $request): Response
     {
 
         $form = $this->createForm(PublicacionType::class, null);
@@ -112,5 +112,26 @@ class UtilidadesController extends AbstractController
         }
 
         return $this->render('utilidades/api_rest_post.html.twig', compact('form'));
+    }
+
+
+    #[Route('/utilidades/api_rest_acciones', name: 'utilidades_api_rest_acciones')]
+    public function api_rest_acciones(Request $request): Response
+    {
+        // https://www.api.tamila.cl/api/login
+        // correo: info@tamila.cl
+        // password: p2gHNiENUw
+        $response = $this->client->request(
+            'GET',
+            'https://www.api.tamila.cl/api/categorias',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzYsImlhdCI6MTY5MDg4MDczNSwiZXhwIjoxNjkzNDcyNzM1fQ.4L57oAbLtgGTnPHZcrDDXbV5DXARTKOBc4LadcEaPzk'
+                ]
+            ]
+
+        );
+        
+        return $this->render('utilidades/api_rest_acciones.html.twig', compact('response'));
     }
 }
