@@ -245,7 +245,7 @@ class UtilidadesController extends AbstractController
         $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
         $token = $responseData['token'];
 
-        
+
         $form = $this->createForm(AccionType::class, null);
         $form -> handleRequest($request);
         $submitedToken = $request->request->get('token');
@@ -305,5 +305,53 @@ class UtilidadesController extends AbstractController
         }
 
         return $this->render('utilidades/api_rest_modificar.html.twig', ['form' => $form,  'datos' => $datos]);
+    }
+
+
+    #[Route('/utilidades/api_rest_eliminar/{id}', name: 'utilidades_api_rest_eliminar')]
+    public function eliminar(Request $request, int $id): Response
+    {
+        $response = $this->client->request(
+            'POST',
+            'https://www.api.tamila.cl/api/login',
+            [
+                'json' => [
+                    'correo' => 'info@tamila.cl',
+                    'password' => 'p2gHNiENUw'
+                ]
+            ]
+        );
+
+        $responseJson = $response->getContent();
+        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+        $token = $responseData['token'];
+
+        $response = $this->client->request(
+            'DELETE',
+            'https://www.api.tamila.cl/api/categorias/'.$id,
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$token
+                ]
+            ]
+
+        );
+
+        $response = $response->getStatusCode();
+
+        if($response === 201){
+            $this->addFlash('css','success');
+            $this->addFlash('respuesta',$response);
+            $this->addFlash('mensaje','proceso completado con éxito');
+        }else{
+            $this->addFlash('css','danger');
+            $this->addFlash('respuesta',$response);
+            $this->addFlash('mensaje','vuelve a intentarlo más tarde');
+        }
+
+        
+       
+        return $this->redirectToRoute('utilidades_api_rest_acciones');
+        // return $this->render('utilidades/api_rest_acciones.html.twig', compact('response'));
     }
 }
