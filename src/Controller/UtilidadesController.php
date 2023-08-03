@@ -22,6 +22,10 @@ use App\Form\PublicacionType;
 
 use App\Form\AccionType;
 
+//FILESYSTEM
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 class UtilidadesController extends AbstractController
 {
     public function __construct(private HttpClientInterface $client,)
@@ -353,5 +357,22 @@ class UtilidadesController extends AbstractController
        
         return $this->redirectToRoute('utilidades_api_rest_acciones');
         // return $this->render('utilidades/api_rest_acciones.html.twig', compact('response'));
+    }
+
+    #[Route('/utilidades/fyleSystem', name: 'utilidades_fileSystem')]
+    public function fileSystem(): Response
+    {
+        $fileSystem = new Filesystem();
+        $ejemplo_mkdir = 'C:\xampp\htdocs\composer\fylesystem';
+        
+        if(!$fileSystem->exists($ejemplo_mkdir)){
+            $fileSystem->mkdir($ejemplo_mkdir,0777);
+
+        }else{
+            // $fileSystem->copy('C:\Users\Lenovo\OneDrive\Imágenes\2.png', $ejemplo_mkdir.'\foto_copiada.png');
+            // $fileSystem->rename($ejemplo_mkdir.'\foto_copiada.png',$ejemplo_mkdir.'\nombre_modificado.png');
+            $fileSystem->remove([$ejemplo_mkdir.'\nombre_modificado.png']);
+        }
+        return $this->render('utilidades/fyle_system.html.twig');
     }
 }
