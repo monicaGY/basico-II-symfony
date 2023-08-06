@@ -1,6 +1,11 @@
 <?php
 
 namespace App\Controller;
+// require '../vendor/autoload.php';
+// require_once '../dompdf/autoload.inc.php';
+// require_once "./vendor/autoload.php";
+
+
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +31,10 @@ use App\Form\AccionType;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
+
+//PDF
+use Dompdf\Dompdf;
+
 class UtilidadesController extends AbstractController
 {
     public function __construct(private HttpClientInterface $client,)
@@ -374,5 +383,53 @@ class UtilidadesController extends AbstractController
             $fileSystem->remove([$ejemplo_mkdir.'\nombre_modificado.png']);
         }
         return $this->render('utilidades/fyle_system.html.twig');
+    }
+
+    #[Route('/utilidades/pdf', name: 'utilidades_pdf')]
+    public function pdf(): Response
+    {
+        return $this->render('utilidades/crear_pdf.html.twig');
+
+    }
+
+    #[Route('/utilidades/pdf/generar', name: 'utilidades_pdf_generar')]
+    public function pdf_generar(): Response
+    {
+        // https://github.com/dompdf/dompdf
+        $data = [
+            'imageSrc' =>$this->imageToBase64($this->getParameter('kernel.project_dir').'/public/img/foto1.jpg'),
+            'nombre' => 'Laura Dolores',
+            'pais' => 'España',
+            'telefono' => '+34 631 99 14 60',
+            'correo' => 'prueba@gmail.com'
+
+        ];      
+        
+
+
+        $html = $this -> renderView('utilidades/generar_pdf.html.twig',$data);
+
+        $dompdf = new Dompdf(array('enable_remote' => true));
+        $options = $dompdf->getOptions();
+        $options->setDefaultFont('Courier');
+        $dompdf->setOptions($options);
+        
+
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+        return new Response(
+            $dompdf->stream('resume', ['Attachment' => false]),
+            Response ::HTTP_OK,
+            ['Content-Type' => 'application/pdf'],
+            compact('data')
+        );
+    }
+
+    private function imageToBase64($path){
+        $path =$path;
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
+        return $base64;
     }
 }
